@@ -7,12 +7,12 @@ Freecaster is a Farcaster bot that publishes posts about free games available to
 This project supports running locally with Docker. To run it, execute:
 
 ```
-docker compose up
+docker compose up --build
 ```
 
 In another window, execute:
 
 ```
-curl -X POST "http://localhost:8080/api/index" \
+curl -v POST "http://localhost:8080/api/index" \
   -d '{ "event": "free_games", "secret": "wdaji29dJadj91jAjd9a92eDak2", "data": [ 142312, 499128 ] }'
 ```
