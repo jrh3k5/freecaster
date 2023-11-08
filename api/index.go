@@ -28,12 +28,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	var requestBody *freeStuffWebhookRequest
 	if decodeErr := json.NewDecoder(r.Body).Decode(requestBody); decodeErr != nil {
 		logger.Debug("Failed to decode request body", "err", decodeErr)
+		if _, writeErr := w.Write([]byte(`{ "status": "notok", "error": "invalid JSON request body" }`)); writeErr != nil {
+			logger.Error("unable to write bad JSON response", "err", writeErr)
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if requestBody.Secret != freeStuffConfig.WebhookSecret {
 		logger.Debug("Webhook secret is not correct")
+		if _, writeErr := w.Write([]byte(`{ "status": "notok", "error": "invalid webhook secret" }`)); writeErr != nil {
+			logger.Error("unable to write bad webhook secret response", "err", writeErr)
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
