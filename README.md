@@ -16,3 +16,13 @@ In another window, execute:
 curl -v POST "http://localhost:8080/api/index" \
   -d '{ "event": "free_games", "secret": "wdaji29dJadj91jAjd9a92eDak2", "data": [ 142312, 499128 ] }'
 ```
+
+## Configuring
+
+This application needs the following configuration parameters as environmental variables:
+
+* `FREESTUFF_WEBHOOK_SECRET`: the pre-configured secret in the FreeStuff API used to help verify that the request originates from the FreeStuff API
+
+### Optional Configuration
+
+* `LOG_LEVEL`: by default, the application logs at log level. This environmental variable can be set to a value correspond to a slog log level to override that default.
