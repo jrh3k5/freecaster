@@ -25,4 +25,4 @@ This application needs the following configuration parameters as environmental v
 
 ### Optional Configuration
 
-* `LOG_LEVEL`: by default, the application logs at log level. This environmental variable can be set to a value correspond to a slog log level to override that default.
+* `LOG_LEVEL`: by default, the application logs at warn level. This environmental variable can be set to a value correspond to a Zap log level to override that default.
