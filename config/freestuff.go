@@ -15,6 +15,7 @@ var (
 )
 
 type FreeStuffConfig struct {
+	APIKey        string `env:"FREESTUFF_API_KEY,required"`
 	WebhookSecret string `env:"FREESTUFF_WEBHOOK_SECRET,required"`
 }
 

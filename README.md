@@ -4,7 +4,13 @@ Freecaster is a Farcaster bot that publishes posts about free games available to
 
 ## Running Locally
 
-This project supports running locally with Docker. To run it, execute:
+This project supports running locally with Docker. First, you need to create a `.env` file. Do the following:
+
+```
+cp .env.sample .env
+```
+
+Then fill out the configuration properties. Following that, you can run the application by executing:
 
 ```
 docker compose up --build

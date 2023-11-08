@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/jrh3k5/freecaster/config"
+	"github.com/jrh3k5/freecaster/freestuff"
 	"github.com/jrh3k5/freecaster/logging"
 	"go.uber.org/zap"
 )
@@ -51,10 +52,28 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gameIDs := make([]uint64, 0, len(requestBody.Data))
+	if requestBody.Event != "free_games" {
+		logger.Info("Unsupported event", zap.String("event", requestBody.Event))
+		w.WriteHeader(http.StatusBadRequest)
+		if _, writeErr := w.Write([]byte(`{ "status": "notok", "error": "unsupported event type" }`)); writeErr != nil {
+			logger.Error("unable to write unsupported event response", zap.Error(writeErr))
+		}
+		return
+	}
+
+	if gameCount := len(requestBody.Data); gameCount > 5 {
+		logger.Info("Too many games requested", zap.Int("game_count", gameCount))
+		w.WriteHeader(http.StatusBadRequest)
+		if _, writeErr := w.Write([]byte(`{ "status": "notok", "error": "too many game IDs" }`)); writeErr != nil {
+			logger.Error("unable to write 'too many games' error response", zap.Error(writeErr))
+		}
+		return
+	}
+
+	gameIDs := make([]int64, 0, len(requestBody.Data))
 	for _, datum := range requestBody.Data {
 		datumString := datum.String()
-		parsedGameID, parseErr := strconv.ParseUint(datumString, 10, 64)
+		parsedGameID, parseErr := strconv.ParseInt(datumString, 10, 64)
 		if parseErr != nil {
 			logger.Debug("Failed to parse game ID from data: "+datumString, zap.Error(parseErr))
 			continue
@@ -63,7 +82,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		gameIDs = append(gameIDs, parsedGameID)
 	}
 
-	// TODO: do something with the game IDs
+	if handler, handlerGetErr := freestuff.GetHandler(ctx); handlerGetErr != nil {
+		logger.Error("failed to get handler", zap.Error(handlerGetErr))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	} else if handlerErr := handler.HandleFreeGames(ctx, gameIDs); handlerErr != nil {
+		logger.Error("failed to handle free games request", zap.Error(handlerErr))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	if _, writeErr := w.Write([]byte(`{ "status": "ok" }`)); writeErr != nil {
 		logger.Error("failed to write successful response body", zap.Error(writeErr))
